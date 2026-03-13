@@ -15,7 +15,16 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowed = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+    if (!origin || origin.replace(/\/$/, "") === allowed) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}));
 app.use(express.json());
 
 // Rate limiting
